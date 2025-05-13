@@ -42,7 +42,7 @@ def load_data_from_excel(file_path):
     print(f"✅ Đã import xong {len(df)} sản phẩm vào database!")
 
 if __name__ == "__main__":
-    excel_file_path = 'D:/New folder (2)/BOOKRECOMMEND/tikicrawl/data/products_data.xlsx'
+    excel_file_path = 'D:/New folder (2)/DEXUATSACH/deantotnghiep/tikicrawl/data/products_data.xlsx'
     load_data_from_excel(excel_file_path)
 
 

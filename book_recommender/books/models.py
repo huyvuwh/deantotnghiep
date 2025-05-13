@@ -16,7 +16,7 @@ class Product(models.Model):
     description = models.TextField(blank=True, null=True)
     thumbnail_url = models.CharField(max_length=255, blank=True, null=True)  # Đổi tên image_url thành thumbnail_url
     images_url = models.TextField(blank=True, null=True)  # Thêm trường images_url (lưu nhiều URL)
-    rating = models.CharField(max_length=255, blank=True, null=True)  # Đổi tên rating_average thành rating
+    rating = models.FloatField(max_length=255, blank=True, null=True)  # Đổi tên rating_average thành rating
     review_count = models.CharField(max_length=255, blank=True, null=True)
     inventory_status = models.CharField(max_length=255, blank=True, null=True)
     inventory_type = models.CharField(max_length=255, blank=True, null=True)  # Thêm trường inventory_type

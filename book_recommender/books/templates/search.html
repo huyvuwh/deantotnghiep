@@ -69,34 +69,27 @@
         {% endfor %}
     </div>
 
-    <!-- Phân trang -->
-    {% if page_obj.has_other_pages %}
-        <div class="mt-8 flex justify-center">
-            <nav aria-label="Pagination">
-                <ul class="inline-flex space-x-2">
-                    {% if page_obj.has_previous %}
-                        <li>
-                            <a href="?q={{ query }}&page={{ page_obj.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.price_order %}&price_order={{ request.GET.price_order }}{% endif %}{% if request.GET.rating_order %}&rating_order={{ request.GET.rating_order }}{% endif %}" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Trước</a>
-                        </li>
-                    {% endif %}
-                    {% for num in page_obj.paginator.page_range %}
-                        {% if page_obj.number == num %}
-                            <li>
-                                <span class="px-4 py-2 bg-blue-800 text-white rounded-md">{{ num }}</span>
-                            </li>
-                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                            <li>
-                                <a href="?q={{ query }}&page={{ num }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.price_order %}&price_order={{ request.GET.price_order }}{% endif %}{% if request.GET.rating_order %}&rating_order={{ request.GET.rating_order }}{% endif %}" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">{{ num }}</a>
-                            </li>
-                        {% endif %}
-                    {% endfor %}
-                    {% if page_obj.has_next %}
-                        <li>
-                            <a href="?q={{ query }}&page={{ page_obj.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.price_order %}&price_order={{ request.GET.price_order }}{% endif %}{% if request.GET.rating_order %}&rating_order={{ request.GET.rating_order }}{% endif %}" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Sau</a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </nav>
-        </div>
-    {% endif %}
+    <ul class="inline-flex space-x-2">
+        {% if page_obj.has_previous %}
+            <li>
+                <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.price_order %}&price_order={{ request.GET.price_order }}{% endif %}{% if request.GET.rating_order %}&rating_order={{ request.GET.rating_order }}{% endif %}" class="...">Trước</a>
+            </li>
+        {% endif %}
+    
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <li><span class="...">{{ num }}</span></li>
+            {% else %}
+                <li>
+                    <a href="?page={{ num }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.price_order %}&price_order={{ request.GET.price_order }}{% endif %}{% if request.GET.rating_order %}&rating_order={{ request.GET.rating_order }}{% endif %}" class="...">{{ num }}</a>
+                </li>
+            {% endif %}
+        {% endfor %}
+    
+        {% if page_obj.has_next %}
+            <li>
+                <a href="?page={{ page_obj.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.price_order %}&price_order={{ request.GET.price_order }}{% endif %}{% if request.GET.rating_order %}&rating_order={{ request.GET.rating_order }}{% endif %}" class="...">Sau</a>
+            </li>
+        {% endif %}
+    </ul>    
 {% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="bg-white shadow-md rounded-lg p-8">
+  <div class="grid md:grid-cols-2 gap-8 items-center">
+    <div>
+      <h2 class="text-4xl font-bold text-gray-800 mb-4">Về Chúng Tôi</h2>
+      <p class="text-gray-600 text-lg mb-4">
+        <strong>Book Recommender</strong> là một nền tảng giúp bạn khám phá những cuốn sách tuyệt vời nhất phù hợp với sở thích và nhu cầu học tập hoặc giải trí.
+      </p>
+      <p class="text-gray-600 text-lg mb-4">
+        Chúng tôi tin rằng mỗi cuốn sách đều có một thông điệp riêng, một giá trị đáng để khám phá. Với hệ thống đề xuất thông minh, bạn sẽ dễ dàng tìm thấy những quyển sách yêu thích mà không cần mất nhiều thời gian.
+      </p>
+      <p class="text-gray-600 text-lg">
+        Sứ mệnh của chúng tôi là <strong>truyền cảm hứng đọc sách cho cộng đồng</strong>, đặc biệt là giới trẻ Việt Nam.
+      </p>
+    </div>
+    <div>
+      <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f" alt="Đọc sách" class="rounded-lg shadow-md">
+    </div>
+  </div>
+
+  <div class="mt-12 grid md:grid-cols-3 gap-6">
+    <div class="bg-blue-50 p-6 rounded-lg shadow-sm">
+      <h3 class="text-xl font-semibold text-blue-700 mb-2">📚 Gợi ý thông minh</h3>
+      <p class="text-gray-700">Thuật toán cá nhân hóa giúp bạn tiếp cận những tựa sách phù hợp nhất.</p>
+    </div>
+    <div class="bg-green-50 p-6 rounded-lg shadow-sm">
+      <h3 class="text-xl font-semibold text-green-700 mb-2">❤️ Danh sách yêu thích</h3>
+      <p class="text-gray-700">Lưu lại những cuốn sách bạn quan tâm và dễ dàng truy cập bất cứ lúc nào.</p>
+    </div>
+    <div class="bg-yellow-50 p-6 rounded-lg shadow-sm">
+      <h3 class="text-xl font-semibold text-yellow-700 mb-2">📦 Giỏ hàng tiện lợi</h3>
+      <p class="text-gray-700">Dễ dàng thêm sách và thanh toán trong tích tắc.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

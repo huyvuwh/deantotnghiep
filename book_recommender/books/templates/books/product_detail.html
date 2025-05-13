@@ -16,7 +16,6 @@
                     </div>
                 {% endif %}
             </div>
-            <!-- Thư viện hình ảnh -->
             {% if product.images_url %}
                 <div class="mt-4 flex space-x-2 overflow-x-auto">
                     {% for img_url in product.images_url|split:";" %}
@@ -25,11 +24,12 @@
                 </div>
             {% endif %}
         </div>
+
         <!-- Khung thông tin sách -->
         <div class="md:w-2/3 mt-6 md:mt-0">
             <h2 class="text-3xl font-bold text-gray-900 mb-4">{{ product.name }}</h2>
             <div class="grid grid-cols-1 gap-4">
-                <!-- Khung giá và đánh giá -->
+                <!-- Giá và đánh giá -->
                 <div class="bg-gray-100 p-4 rounded-lg">
                     <p class="text-lg"><strong class="text-gray-700">Giá:</strong> <span class="text-red-600 font-bold text-xl">{{ product.price }}</span></p>
                     {% if product.original_price|floatformat:0|add:"0" > product.price|floatformat:0|add:"0" %}
@@ -45,7 +45,8 @@
                         <p class="text-lg mt-2"><strong class="text-gray-700">Đã bán:</strong> {{ product.sold_quantity }}</p>
                     {% endif %}
                 </div>
-                <!-- Khung thông tin sách -->
+
+                <!-- Thông tin chi tiết -->
                 <div class="bg-gray-100 p-4 rounded-lg">
                     {% if product.category %}
                         <p class="text-lg"><strong class="text-gray-700">Danh mục:</strong> {{ product.category }}</p>
@@ -69,23 +70,41 @@
                         <p class="text-lg mt-2"><strong class="text-gray-700">Trạng thái tồn kho:</strong> {{ product.inventory_status }}{% if product.inventory_type %} ({{ product.inventory_type }}){% endif %}</p>
                     {% endif %}
                 </div>
-                <!-- Khung mô tả -->
+
+                <!-- Mô tả chi tiết -->
                 <div class="bg-gray-100 p-4 rounded-lg">
-                    {% if product.short_description %}
-                        <p class="text-lg"><strong class="text-gray-700">Tóm tắt:</strong></p>
-                        <p class="text-gray-600">{{ product.short_description }}</p>
-                    {% endif %}
                     {% if product.description %}
                         <p class="text-lg mt-4"><strong class="text-gray-700">Mô tả chi tiết:</strong></p>
-                        <p id="description" class="text-gray-600 line-clamp-10">{{ product.description }}</p>
-                        <button id="toggleDescription" class="text-blue-600 hover:underline text-sm mt-2">Xem thêm</button>
+                        {% with product.description as full_desc %}
+                            {% with full_desc|slice:":500" as short_desc %}
+                                <p id="short-description" class="text-gray-600">{{ short_desc }}{% if full_desc|length > 500 %}...{% endif %}</p>
+                                <p id="full-description" class="text-gray-600 hidden">{{ full_desc }}</p>
+                                {% if full_desc|length > 500 %}
+                                    <button id="toggleDescription" class="text-blue-600 hover:underline text-sm mt-2">Xem thêm</button>
+                                {% endif %}
+                            {% endwith %}
+                        {% endwith %}
                     {% endif %}
                 </div>
             </div>
+
             <!-- Nút hành động -->
             <div class="mt-6 flex space-x-4">
-                <a href="#" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition">Thêm vào giỏ hàng</a>
-                <a href="#" class="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 transition">Yêu thích</a>
+                <button id="addToCart"
+                    data-product='{{ product.id }}|{{ product.name }}|{{ product.price }}|{{ product.thumbnail_url }}'
+                    class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition flex items-center space-x-2">
+                    <span>🛒</span>
+                    <span>Thêm vào giỏ hàng</span>
+                </button>
+            
+                <button id="addToFavorites"
+                data-product-id="{{ product.id }}"
+                data-product-name="{{ product.name }}"
+                data-product-price="{{ product.price }}"
+                data-product-thumbnail="{{ product.thumbnail_url }}"
+                class="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 transition">
+                ❤️ Yêu thích
+              </button>
             </div>
         </div>
     </div>
@@ -168,18 +187,55 @@
             </nav>
         </div>
     {% endif %}
-{% endblock %}
-
-<!-- JavaScript cho nút Xem thêm -->
+<!-- JavaScript cho nút Xem thêm / Ẩn bớt -->
 <script>
-    document.getElementById('toggleDescription').addEventListener('click', function() {
-        const description = document.getElementById('description');
-        if (description.classList.contains('line-clamp-10')) {
-            description.classList.remove('line-clamp-10');
-            this.textContent = 'Thu gọn';
-        } else {
-            description.classList.add('line-clamp-10');
+    document.getElementById('toggleDescription')?.addEventListener('click', function () {
+        const shortDesc = document.getElementById('short-description');
+        const fullDesc = document.getElementById('full-description');
+
+        if (shortDesc.classList.contains('hidden')) {
+            shortDesc.classList.remove('hidden');
+            fullDesc.classList.add('hidden');
             this.textContent = 'Xem thêm';
+        } else {
+            shortDesc.classList.add('hidden');
+            fullDesc.classList.remove('hidden');
+            this.textContent = 'Ẩn bớt';
         }
     });
+    // Thêm vào giỏ hàng
+    document.getElementById('addToCart')?.addEventListener('click', function () {
+        const data = this.dataset.product.split('|');
+        const [id, name, price, image] = data;
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    
+        const existing = cart.find(p => p.id === id);
+        if (existing) {
+            existing.quantity += 1;
+        } else {
+            cart.push({ id, name, price: parseFloat(price), image, quantity: 1 });
+        }
+    
+        localStorage.setItem('cart', JSON.stringify(cart));
+        window.location.href = '/cart/'; // ✅ chuyển sang trang giỏ hàng
+    });
+    // Thêm vào danh sách yêu thích
+    document.getElementById('addToFavorites')?.addEventListener('click', function () {
+        const id = this.dataset.productId;
+        const name = this.dataset.productName;
+        const price = this.dataset.productPrice;
+        const thumbnail = this.dataset.productThumbnail;
+    
+        let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+    
+        if (favorites.some(p => p.id == id)) {
+            alert("Sách này đã có trong danh sách yêu thích.");
+            return;
+        }
+    
+        favorites.push({ id, name, price, thumbnail_url: thumbnail });
+        localStorage.setItem('favorites', JSON.stringify(favorites));
+        alert("Đã thêm vào danh sách yêu thích!");
+    });
 </script>
+{% endblock %}

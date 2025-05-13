@@ -20,10 +20,7 @@ from .models import Product
 from .recommender import Recommender
 
 def index(request):
-    # Lấy tất cả sản phẩm
     products = Product.objects.all()
-
-    # Lấy danh sách thể loại duy nhất
     categories = Product.objects.values_list('category', flat=True).distinct()
 
     # Bộ lọc theo thể loại
@@ -31,19 +28,21 @@ def index(request):
     if category:
         products = products.filter(category=category)
 
-    # Bộ lọc theo giá
+    # Xử lý sắp xếp
+    sort_field = 'id'  # Mặc định
     price_order = request.GET.get('price_order', '')
-    if price_order == 'asc':
-        products = products.order_by('price')
-    elif price_order == 'desc':
-        products = products.order_by('-price')
-
-    # Bộ lọc theo đánh giá
     rating_order = request.GET.get('rating_order', '')
-    if rating_order == 'asc':
-        products = products.order_by('rating')
+
+    if price_order == 'asc':
+        sort_field = 'price'
+    elif price_order == 'desc':
+        sort_field = '-price'
+    elif rating_order == 'asc':
+        sort_field = 'rating'
     elif rating_order == 'desc':
-        products = products.order_by('-rating')
+        sort_field = '-rating'
+
+    products = products.order_by(sort_field)
 
     # Phân trang
     paginator = Paginator(products, 20)
@@ -57,33 +56,32 @@ def index(request):
 
 def search(request):
     query = request.GET.get('q', '')
-    if query:
-        products = Product.objects.filter(
-            Q(name__icontains=query) |
-            Q(category__icontains=query) |
-            Q(description__icontains=query)
-        )
-    else:
-        products = Product.objects.all()
+    products = Product.objects.filter(
+        Q(name__icontains=query) |
+        Q(category__icontains=query) |
+        Q(description__icontains=query)
+    ) if query else Product.objects.all()
 
     # Bộ lọc theo thể loại
     category = request.GET.get('category', '')
     if category:
         products = products.filter(category=category)
 
-    # Bộ lọc theo giá
+    # Xử lý sắp xếp
+    sort_field = 'id'
     price_order = request.GET.get('price_order', '')
-    if price_order == 'asc':
-        products = products.order_by('price')
-    elif price_order == 'desc':
-        products = products.order_by('-price')
-
-    # Bộ lọc theo đánh giá
     rating_order = request.GET.get('rating_order', '')
-    if rating_order == 'asc':
-        products = products.order_by('rating')
+
+    if price_order == 'asc':
+        sort_field = 'price'
+    elif price_order == 'desc':
+        sort_field = '-price'
+    elif rating_order == 'asc':
+        sort_field = 'rating'
     elif rating_order == 'desc':
-        products = products.order_by('-rating')
+        sort_field = '-rating'
+
+    products = products.order_by(sort_field)
 
     # Phân trang
     paginator = Paginator(products, 20)
@@ -108,7 +106,7 @@ def product_detail(request, product_id):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
-    return render(request, 'product_detail.html', {
+    return render(request, 'books/product_detail.html', {
         'product': product,
         'page_obj': page_obj
     })
@@ -117,6 +115,19 @@ def recommend_api(request, product_id):
     recommender = Recommender()
     recommended_ids = recommender.recommend_products(product_id)
     recommended_products = Product.objects.filter(id__in=recommended_ids).values(
-        'id', 'name', 'price', 'image_url'
+        'id', 'name', 'price', 'thumbnail_url'
     )
     return JsonResponse({'recommended_products': list(recommended_products)})
+
+# views.py
+def cart_view(request):
+    return render(request, 'books/cart.html')
+
+def thank_you(request):
+    return render(request, 'thank_you.html')
+
+def about(request):
+    return render(request, 'about.html')
+
+def favorites_view(request):
+    return render(request, 'favorites.html')

@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="text-2xl font-bold mb-6">📌 Danh sách yêu thích của bạn</h2>
+<div id="favorite-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+    const container = document.getElementById('favorite-list');
+
+    function renderFavorites() {
+        container.innerHTML = '';
+        if (favorites.length === 0) {
+            container.innerHTML = '<p class="text-gray-500 col-span-full">Không có sách yêu thích nào.</p>';
+            return;
+        }
+
+        favorites.forEach(product => {
+            const card = document.createElement('div');
+            card.className = 'bg-white rounded-lg shadow-md overflow-hidden relative';
+
+            card.innerHTML = `
+                <a href="/product/${product.id}">
+                    <img src="${product.thumbnail_url}" class="w-full h-48 object-cover" alt="${product.name}">
+                    <div class="p-4">
+                        <h3 class="text-lg font-semibold text-gray-800 truncate">${product.name}</h3>
+                        <p class="text-red-600 font-medium mt-1">${parseInt(product.price).toLocaleString()}₫</p>
+                    </div>
+                </a>
+                <button data-id="${product.id}" class="remove-fav absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white text-xs px-2 py-1 rounded">
+                    ✕
+                </button>
+            `;
+
+            container.appendChild(card);
+        });
+
+        // Gắn sự kiện xoá sau khi render
+        document.querySelectorAll('.remove-fav').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault(); // Không bị redirect khi bấm
+                const id = this.dataset.id;
+                favorites = favorites.filter(item => item.id != id);
+                localStorage.setItem('favorites', JSON.stringify(favorites));
+                renderFavorites();
+            });
+        });
+    }
+
+    renderFavorites();
+});
+</script>
+{% endblock %}

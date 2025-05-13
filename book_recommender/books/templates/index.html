@@ -52,10 +52,33 @@
                     <div class="p-4">
                         <h3 class="text-lg font-semibold text-gray-800 line-clamp-2">{{ product.name }}</h3>
                         <div class="mt-2">
-                            <p class="text-red-600 font-medium">{{ product.price }}</p>
-                            {% if product.original_price|floatformat:0|add:"0" > product.price|floatformat:0|add:"0" %}
-                                <p class="text-gray-500 line-through text-sm">{{ product.original_price }}</p>
-                            {% endif %}
+                            <div class="flex items-center justify-between mt-1">
+                                <div>
+                                  <p class="text-red-600 font-medium">{{ product.price }}</p>
+                                  {% if product.original_price|floatformat:0|add:"0" > product.price|floatformat:0|add:"0" %}
+                                    <p class="text-gray-500 line-through text-sm">{{ product.original_price }}</p>
+                                  {% endif %}
+                                </div>
+                              
+                                <div class="flex items-center ml-2 space-x-0.5">
+                                    {% with rating=product.rating|default:0 %}
+                                    {% for i in "12345" %}
+                                      {% if forloop.counter <= rating %}
+                                        <!-- Sao đầy -->
+                                        <svg class="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                                          <path d="M10 15l-5.878 3.09 1.122-6.545L.488 6.91l6.561-.955L10 0l2.951 5.955 6.561.955-4.756 4.635 1.122 6.545z"/>
+                                        </svg>
+                                      {% else %}
+                                        <!-- Sao trống -->
+                                        <svg class="w-4 h-4 text-gray-300 fill-current" viewBox="0 0 20 20">
+                                          <path d="M10 15l-5.878 3.09 1.122-6.545L.488 6.91l6.561-.955L10 0l2.951 5.955 6.561.955-4.756 4.635 1.122 6.545z"/>
+                                        </svg>
+                                      {% endif %}
+                                    {% endfor %}
+                                    <span class="ml-1 text-xs text-gray-600">({{ rating|floatformat:1 }})</span>
+                                  {% endwith %}                                  
+                                </div>
+                              </div>                              
                         </div>
                     </div>
                 </a>
@@ -67,32 +90,38 @@
 
     <!-- Phân trang -->
     {% if page_obj.has_other_pages %}
-        <div class="mt-8 flex justify-center">
-            <nav aria-label="Pagination">
-                <ul class="inline-flex space-x-2">
-                    {% if page_obj.has_previous %}
-                        <li>
-                            <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.price_order %}&price_order={{ request.GET.price_order }}{% endif %}{% if request.GET.rating_order %}&rating_order={{ request.GET.rating_order }}{% endif %}" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Trước</a>
-                        </li>
-                    {% endif %}
-                    {% for num in page_obj.paginator.page_range %}
-                        {% if page_obj.number == num %}
-                            <li>
-                                <span class="px-4 py-2 bg-blue-800 text-white rounded-md">{{ num }}</span>
-                            </li>
-                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                            <li>
-                                <a href="?page={{ num }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.price_order %}&price_order={{ request.GET.price_order }}{% endif %}{% if request.GET.rating_order %}&rating_order={{ request.GET.rating_order }}{% endif %}" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">{{ num }}</a>
-                            </li>
-                        {% endif %}
-                    {% endfor %}
-                    {% if page_obj.has_next %}
-                        <li>
-                            <a href="?page={{ page_obj.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.price_order %}&price_order={{ request.GET.price_order }}{% endif %}{% if request.GET.rating_order %}&rating_order={{ request.GET.rating_order }}{% endif %}" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Sau</a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </nav>
-        </div>
-    {% endif %}
+    <div class="mt-8 flex justify-center">
+      <nav aria-label="Pagination">
+        <ul class="inline-flex space-x-2">
+          {% if page_obj.has_previous %}
+            <li>
+              <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.price_order %}&price_order={{ request.GET.price_order }}{% endif %}{% if request.GET.rating_order %}&rating_order={{ request.GET.rating_order }}{% endif %}" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Trước</a>
+            </li>
+          {% endif %}
+    
+          {% for num in page_obj.paginator.page_range %}
+            {% if num == 1 or num == page_obj.paginator.num_pages or num >= page_obj.number|add:'-1' and num <= page_obj.number|add:'1' %}
+              {% if num == page_obj.number %}
+                <li>
+                  <span class="px-4 py-2 bg-blue-800 text-white rounded-md">{{ num }}</span>
+                </li>
+              {% else %}
+                <li>
+                  <a href="?page={{ num }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.price_order %}&price_order={{ request.GET.price_order }}{% endif %}{% if request.GET.rating_order %}&rating_order={{ request.GET.rating_order }}{% endif %}" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">{{ num }}</a>
+                </li>
+              {% endif %}
+            {% elif num == page_obj.number|add:'-2' or num == page_obj.number|add:'2' %}
+              <li><span class="px-3 py-2 text-gray-500">...</span></li>
+            {% endif %}
+          {% endfor %}
+    
+          {% if page_obj.has_next %}
+            <li>
+              <a href="?page={{ page_obj.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.price_order %}&price_order={{ request.GET.price_order }}{% endif %}{% if request.GET.rating_order %}&rating_order={{ request.GET.rating_order }}{% endif %}" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Sau</a>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+    {% endif %}    
 {% endblock %}
